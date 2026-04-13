@@ -114,4 +114,12 @@ document.getElementById('ps').className=t==='s'?'':'ch';
 document.getElementById('pc').className=t==='c'?'':'ch';
 }
 
+ async function aj(path){
+var tried=new Set();
+if(cached){tried.add(cached);try{var r=await fetch(cached+path,{signal:to(12000)});if(r.ok){var d=await r.json();return{d:d,i:cached};}}catch(e){cached=null;}}
+for(var x=0;x<INST.length;x++){var inst=INST[x];if(tried.has(inst))continue;tried.add(inst);try{var r=await fetch(inst+path,{signal:to(12000)});if(r.ok){cached=inst;var d=await r.json();return{d:d,i:inst};}}catch(e){}}
+throw new Error('fail');
+}
+async function at(url){var r=await fetch(url,{signal:to(15000)});if(!r.ok)throw new Error('fail');return r.text();}
+
   
