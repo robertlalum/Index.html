@@ -237,3 +237,39 @@ return '<label class="vrow'+(sel?' ck':'')+'" data-v="'+v.videoId+'"><input type
 }).join('');
 }
 
+function togVid(id,ck){if(ck)CH.sel.add(id);else CH.sel.delete(id);var r=document.querySelector('[data-v="'+id+'"]');if(r)r.className='vrow'+(ck?' ck':'');updSel();}
+function togAll(){var a=document.getElementById('selAll').checked;CH.vids.forEach(function(v){if(a)CH.sel.add(v.videoId);else CH.sel.delete(v.videoId);});renderVids();updSel();}
+function updSel(){document.getElementById('selN').textContent=CH.sel.size+' of '+CH.vids.length+' selected';var a=document.getElementById('selAll');if(a)a.checked=CH.vids.length>0&&CH.sel.size===CH.vids.length;}
+
+
+async function extSel(){
+var selVids=CH.vids.filter(function(v){return CH.sel.has(v.videoId);});
+if(!selVids.length){toast('Select videos first',false);return;}
+CH.exting=true;CH.abort=new AbortController();
+document.getElementById('extBtn').disabled=true;
+document.getElementById('chProg').className='card';
+var ok=0,fail=0,skip=0;
+for(var x=0;x<selVids.length;x++){
+if(CH.abort.signal.aborted)break;
+var v=selVids[x],pct=Math.round((x/selVids.length)*100);
+document.getElementById('prF').style.width=pct+'%';
+document.getElementById('prL').textContent='Extracting '+(x+1)+' of '+selVids.length;
+document.getElementById('prC').textContent=v.title;
+if(OUT.find(function(o){return o.id===v.videoId;})){skip++;continue;}
+
+
+try{var r=await aj('/api/v1/videos/'+v.videoId);var d=r.d,inst=r.i;
+var th=(d.videoThumbnails||[]);th=th.find(function(t){return t.quality==='medium';});if(!th&&d.videoThumbnails)th=d.videoThumbnails[0];th=th?th.url:'';
+var r2=await aj('/api/v1/captions/'+v.videoId);
+var tracks=(r2.d.captions||[]).map(function(c){return{label:c.label,url:c.url.indexOf('http')===0?c.url:inst+c.url};});
+if(!tracks.length)throw new Error('no');
+tracks.sort(function(a,b){return(/auto/i.test(a.label)?1:0)-(/auto/i.test(b.label)?1:0);});
+var raw=await at(tracks[0].url),cues=pv(raw);
+if(!cues.length)throw new Error('empty');
+OUT.push({id:v.videoId,title:d.title||'Untitled',thumb:th.indexOf('http')===0?th:inst+th,cues:cues,words:wc(gt(cues))});
+render(OUT[OUT.length-1]);ok++;
+}catch(e){fail++;}
+if(x<selVids.length-1&&!CH.abort.signal.aborted)await new Promise(function(r){setTimeout(r,650);});
+}
+
+
