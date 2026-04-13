@@ -40,4 +40,56 @@ h1{text-align:center;font-size:28px;font-weight:700;margin-bottom:4px}
 .sm:hover{background:#1e1c1a;color:#e09145;border-color:#3a3836}
 @keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-  
+ .toast{position:fixed;bottom:16px;right:16px;padding:10px 14px;border-radius:10px;font-size:13px;color:#e8e4df;background:#161514;border:1px solid #dc2626;box-shadow:0 8px 20px rgba(0,0,0,.5);animation:fi .2s ease;z-index:50}
+.toast.ok{border-color:#059669}
+.ch{display:none}
+.vrow{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;transition:background .15s}
+.vrow:hover{background:rgba(30,28,26,.7)}
+.vrow.ck{background:rgba(224,145,69,.05)}
+.ckb{appearance:none;width:16px;height:16px;border:2px solid #2a2826;border-radius:4px;cursor:pointer;flex-shrink:0;position:relative;background:transparent}
+.ckb:checked{background:#e09145;border-color:#e09145}
+.ckb:checked::after{content:'';position:absolute;left:3px;top:0;width:5px;height:9px;border:solid #0c0b0a;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.pbar{height:4px;background:#2a2826;border-radius:2px;overflow:hidden}
+.pfill{height:100%;background:#e09145;border-radius:2px;transition:width .3s}
+</style>
+
+  </head>
+<body>
+<div class="wrap">
+<h1>Tube<span style="color:#e09145">Scribe</span></h1>
+<p class="sub">Paste a YouTube link. Download the transcript.</p>
+<div class="tabs">
+<button class="tab on" onclick="setTab('s')" id="t1">Single Video</button>
+<button class="tab" onclick="setTab('c')" id="t2">Channel</button>
+</div>
+<div id="ps">
+<div class="row">
+<div class="wrap-inp">
+<span class="ico">&#9654;</span 
+<input type="url" id="url1" class="inp" placeholder="https://www.youtube.com/watch?v=...">
+</div>
+<button id="b1" class="btn" onclick="go1()">Extract</button>
+</div>
+<div class="st" id="st1"><div class="sp"></div><span id="sx1"></span></div>
+</div>
+
+ <div id="pc" class="ch">
+<div class="row">
+<div class="wrap-inp">
+<span class="ico">@</span>
+<input type="url" id="url2" class="inp" placeholder="https://www.youtube.com/@channel">
+</div>
+<button id="b2" class="btn" onclick="loadCh()">Load</button>
+</div>
+<div class="st" id="st2"><div class="sp"></div><span id="sx2"></span></div>
+<div id="chHead" class="card ch"></div>
+<div id="chBar" class="ch" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#9a9188;cursor:pointer"><input type="checkbox" class="ckb" id="selAll" onchange="togAll()"><span id="selN">0 selected</span></label>
+<div style="display:flex;gap:6px">
+<button id="moreBtn" class="sm ch" onclick="loadMore()">More</button>
+<button id="extBtn" class="btn" style="padding:6px 14px;font-size:12px" onclick="extSel()">Extract Selected</button>
+</div>
+</div>
+<div id="chVids" class="ch" style="max-height:400px;overflow-y:auto;background:#161514;border:1px solid #2a2826;border-radius:10px;margin-bottom:8px"></div> 
+
+   
