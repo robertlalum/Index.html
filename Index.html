@@ -210,3 +210,30 @@ btn.disabled=false;btn.textContent='Load';
 st.style.display='none';
 }
 }
+
+async function fetchVids(){
+var r=await aj('/api/v1/channels/'+CH.ucid+'/videos?page='+CH.page+'&sort_by=newest');
+var vids=r.d.videos||[];if(!vids.length){CH.more=false;return;}
+CH.vids=CH.vids.concat(vids);if(CH.vids.length>=300||vids.length<30)CH.more=false;CH.page++;
+renderVids();
+document.getElementById('chBar').style.display='flex';
+document.getElementById('chVids').className='';
+document.getElementById('moreBtn').className=CH.more?'sm':'sm ch';
+updSel();
+}
+async function loadMore(){
+if(CH.loading||!CH.more)return;CH.loading=true;
+var b=document.getElementById('moreBtn');b.disabled=true;b.textContent='...';
+try{await fetchVids();}catch(e){toast('Failed to load more',false);}
+finally{CH.loading=false;b.disabled=false;b.textContent='More';}
+}
+
+function renderVids(){
+var el=document.getElementById('chVids');
+el.innerHTML=CH.vids.map(function(v){
+var th=(v.videoThumbnails||[]);th=th.find(function(t){return t.quality==='medium';});if(!th&&v.videoThumbnails)th=v.videoThumbnails[4]||v.videoThumbnails[0];th=th?th.url:'';
+var sel=CH.sel.has(v.videoId),done=OUT.find(function(o){return o.id===v.videoId;});
+return '<label class="vrow'+(sel?' ck':'')+'" data-v="'+v.videoId+'"><input type="checkbox" class="ckb" '+(sel?'checked':'')+' onchange="togVid(\''+v.videoId+'\',this.checked)"><img src="'+esc(th)+'" style="width:64px;height:36px;object-fit:cover;border-radius:6px;background:#1e1c1a" onerror="this.style.display=\'none\'"><div style="min-width:0;flex:1"><div style="font-size:12px;color:#e8e4df;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(v.title)+'</div><div style="font-size:10px;color:#6b6560">'+fmtDur(v.lengthSeconds||0)+(done?' &middot; <span style="color:#059669">Done</span>':'')+'</div></div></label>';
+}).join('');
+}
+
