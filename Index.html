@@ -102,4 +102,16 @@ h1{text-align:center;font-size:28px;font-weight:700;margin-bottom:4px}
 <div id="out"></div>
 </div>
 
+<script>
+var OUT=[];
+var INST=['https://inv.nadeko.net','https://invidious.fdn.fr','https://vid.puffyan.us','https://invidious.nerdvpn.de','https://invidious.jing.rocks','https://iv.ggtyler.dev','https://yewtu.be'];
+var cached=null;
+function to(ms){var c=new AbortController();setTimeout(function(){c.abort();},ms);return c.signal;}
+function setTab(t){
+document.getElementById('t1').className='tab'+(t==='s'?' on':'');
+document.getElementById('t2').className='tab'+(t==='c'?' on':'');
+document.getElementById('ps').className=t==='s'?'':'ch';
+document.getElementById('pc').className=t==='c'?'':'ch';
+}
+
   
