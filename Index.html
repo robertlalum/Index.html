@@ -127,3 +127,13 @@ function pv(raw){var ls=raw.split('\n'),cs=[],c=null,h=true;for(var x=0;x<ls.len
 function gt(c){return c.map(function(x){return x.t;}).join('\n');}
 function gs(c){return c.map(function(x,i){return(i+1)+'\n'+x.time.replace(/\./g,',')+'\n'+x.t;}).join('\n\n');}
 function gv(c){return 'WEBVTT\n\n'+c.map(function(x){return x.time+'\n'+x.t;}).join('\n\n');} 
+
+
+  function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function wc(t){return t.split(/\s+/).filter(Boolean).length;}
+function safe(s){return s.replace(/[<>:"/\\|?*]/g,'').substring(0,100);}
+function fmtNum(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return String(n);}
+function fmtDur(s){var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60);return h>0?h+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'):m+':'+String(sec).padStart(2,'0');}
+function toast(m,ok){var el=document.createElement('div');el.className='toast'+(ok?' ok':'');el.textContent=m;document.body.appendChild(el);setTimeout(function(){el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(function(){el.remove();},300);},3000);}
+
+  
