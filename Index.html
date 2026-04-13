@@ -273,3 +273,22 @@ if(x<selVids.length-1&&!CH.abort.signal.aborted)await new Promise(function(r){se
 }
 
 
+
+document.getElementById('prF').style.width='100%';CH.exting=false;CH.abort=null;
+document.getElementById('extBtn').disabled=false;
+setTimeout(function(){document.getElementById('chProg').className='card ch';},800);
+toast('Done: '+ok+' extracted, '+skip+' skipped, '+fail+' failed',ok>0);
+renderVids();
+}
+function cancelExt(){if(CH.abort)CH.abort.abort();toast('Cancelled',false);}
+
+
+function dlZip(){
+if(!OUT.length)return;
+var zip=new JSZip(),f=zip.folder('transcripts');
+OUT.forEach(function(o){var n=safe(o.title);f.file(n+'.txt',gt(o.cues));f.file(n+'.srt',gs(o.cues));f.file(n+'.vtt',gv(o.cues));});
+zip.generateAsync({type:'blob'}).then(function(blob){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='tubescribe-'+Date.now()+'.zip';a.click();toast('Zipped '+OUT.length+' transcript(s)',true);}).catch(function(){toast('ZIP failed',false);});
+}
+function clearAll(){OUT.length=0;document.getElementById('out').innerHTML='';if(CH.vids.length)renderVids();}
+
+
