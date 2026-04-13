@@ -145,4 +145,15 @@ btn.disabled=true;btn.textContent='...';
 var st=document.getElementById('st1'),sx=document.getElementById('sx1');
 st.style.display='flex';sx.textContent='Fetching video...';
 
-    
+    try{
+var r1=await aj('/api/v1/videos/'+id);
+var v=r1.d,inst=r1.i,title=v.title||'Untitled';
+var th=(v.videoThumbnails||[]);th=th.find(function(t){return t.quality==='medium';});if(!th&&v.videoThumbnails)th=v.videoThumbnails[0];th=th?th.url:'';
+sx.textContent='Finding captions...';
+var r2=await aj('/api/v1/captions/'+id);
+var tracks=(r2.d.captions||[]).map(function(c){return{label:c.label,url:c.url.indexOf('http')===0?c.url:inst+c.url};});
+if(!tracks.length)throw new Error('no');
+tracks.sort(function(a,b){return(/auto/i.test(a.label)?1:0)-(/auto/i.test(b.label)?1:0);});
+sx.textContent='Downloading transcript...';
+var raw=await at(tracks[0].url),cues=pv(raw);
+if(!cues.length)throw new Error('empty');
