@@ -122,4 +122,8 @@ throw new Error('fail');
 }
 async function at(url){var r=await fetch(url,{signal:to(15000)});if(!r.ok)throw new Error('fail');return r.text();}
 
-  
+ function vid(u){var m=u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);return m?m[1]:null;}
+function pv(raw){var ls=raw.split('\n'),cs=[],c=null,h=true;for(var x=0;x<ls.length;x++){var l=ls[x];if(h){if(l.indexOf('-->')!==-1)h=false;else continue;}if(l.indexOf('-->')!==-1){if(c&&c.t.trim())cs.push(c);c={time:l.trim(),t:''};}else if(c!==null){var y=l.replace(/<[^>]*>/g,'').trim();if(!y){if(c.t.trim())cs.push(c);c=null;}else c.t+=(c.t?' ':'')+y;}}if(c&&c.t.trim())cs.push(c);return cs;}
+function gt(c){return c.map(function(x){return x.t;}).join('\n');}
+function gs(c){return c.map(function(x,i){return(i+1)+'\n'+x.time.replace(/\./g,',')+'\n'+x.t;}).join('\n\n');}
+function gv(c){return 'WEBVTT\n\n'+c.map(function(x){return x.time+'\n'+x.t;}).join('\n\n');} 
