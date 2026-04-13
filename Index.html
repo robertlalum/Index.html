@@ -157,3 +157,56 @@ tracks.sort(function(a,b){return(/auto/i.test(a.label)?1:0)-(/auto/i.test(b.labe
 sx.textContent='Downloading transcript...';
 var raw=await at(tracks[0].url),cues=pv(raw);
 if(!cues.length)throw new Error('empty');
+
+function render(o){
+var el=document.createElement('div');el.className='card';
+el.innerHTML='<div class="ctop"><img src="'+esc(o.thumb)+'" class="cimg" onerror="this.style.display=\'none\'"><div class="cinfo"><div class="ctit">'+esc(o.title)+'</div><div class="cw">'+o.words+' words</div></div></div><div class="tbox">'+esc(gt(o.cues))+'</div><div class="btns" id="b-'+o.id+'"></div>';
+document.getElementById('out').prepend(el);
+var bb=document.getElementById('b-'+o.id);
+[['.TXT',gt],['.SRT',gs],['.VTT',gv]].forEach(function(pair){
+var b=document.createElement('button');b.className='sm';b.textContent=pair[0];
+b.onclick=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([pair[1](o.cues)],{type:'text/plain'}));a.download=safe(o.title)+pair[0];a.click();};
+bb.appendChild(b);
+});
+
+var cb=document.createElement('button');cb.className='sm';cb.textContent='Copy';
+cb.onclick=function(){navigator.clipboard.writeText(gt(o.cues)).then(function(){toast('Copied',true);}).catch(function(){toast('Copy failed',false);});};
+bb.appendChild(cb);
+}
+
+var CH={info:null,ucid:null,inst:null,vids:[],sel:new Set(),page:1,more:true,loading:false,exting:false,abort:null};
+
+async function loadCh(){
+var inp=document.getElementById('url2'),btn=document.getElementById('b2'),u=inp.value.trim();
+if(!u){toast('Paste a channel URL',false);return;}
+if(CH.loading)return;
+CH.info=null;CH.ucid=null;CH.vids=[];CH.sel.clear();CH.page=1;CH.more=true;
+['chHead','chBar','chVids','chProg'].forEach(function(id){document.getElementById(id).className='card ch';});
+document.getElementById('chEmpty').className='ch';
+btn.disabled=true;btn.textContent='...';
+var st=document.getElementById('st2'),sx=document.getElementById('sx2');
+st.style.display='flex';sx.textContent='Resolving channel...';
+
+try{
+var ucid=null,author=null,inst=null;
+try{var r=await aj('/api/v1/resolveurl?url='+encodeURIComponent(u));if(r.d.ucid){ucid=r.d.ucid;author=r.d.author;inst=r.i;}}catch(e){}
+if(!ucid){var hm=u.match(/youtube\.com\/@([\w.-]+)/);if(hm){try{var r=await aj('/api/v1/channels/@'+hm[1]);ucid=r.d.authorId;author=r.d.author;inst=r.i;}catch(e){}}}
+if(!ucid){var im=u.match(/youtube\.com\/channel\/(UC[\w-]+)/);if(im){try{var r=await aj('/api/v1/channels/'+im[1]);ucid=r.d.authorId;author=r.d.author;inst=r.i;}catch(e){}}}
+if(!ucid)throw new Error('not');
+CH.ucid=ucid;CH.inst=inst;
+sx.textContent='Loading channel info...';
+var r=await aj('/api/v1/channels/'+ucid);CH.info=r.d;
+var av=(r.d.authorThumbnails||[]);av=av.find(function(t){return t.width>=96;});av=av?av.url:'';
+
+document.getElementById('chHead').innerHTML='<div style="display:flex;align-items:center;gap:12px"><img src="'+esc(av.indexOf('http')===0?av:inst+av)+'" style="width:48px;height:48px;border-radius:50%;background:#1e1c1a;object-fit:cover"><div><div style="font-weight:600;font-size:14px">'+esc(r.d.author||author||'Channel')+'</div><div style="font-size:11px;color:#6b6560;margin-top:2px">'+(r.d.subCount!=null?fmtNum(r.d.subCount)+' subs':'')+(r.d.videoCount!=null?' &middot; '+fmtNum(r.d.videoCount)+' videos':'')+'</div></div></div>';
+document.getElementById('chHead').className='card';
+sx.textContent='Loading videos...';
+await fetchVids();
+}catch(e){
+toast(e.message==='not'?'Could not find that channel.':'Failed to load channel.',false);
+document.getElementById('chEmpty').className='';
+}finally{
+btn.disabled=false;btn.textContent='Load';
+st.style.display='none';
+}
+}
