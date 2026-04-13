@@ -292,3 +292,8 @@ zip.generateAsync({type:'blob'}).then(function(blob){var a=document.createElemen
 function clearAll(){OUT.length=0;document.getElementById('out').innerHTML='';if(CH.vids.length)renderVids();}
 
 
+document.getElementById('url1').addEventListener('keydown',function(e){if(e.key==='Enter')go1();});
+document.getElementById('url2').addEventListener('keydown',function(e){if(e.key==='Enter')loadCh();});
+</script>
+</body>
+</html>
