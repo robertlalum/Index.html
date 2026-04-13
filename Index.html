@@ -136,4 +136,13 @@ function fmtNum(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3
 function fmtDur(s){var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60);return h>0?h+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'):m+':'+String(sec).padStart(2,'0');}
 function toast(m,ok){var el=document.createElement('div');el.className='toast'+(ok?' ok':'');el.textContent=m;document.body.appendChild(el);setTimeout(function(){el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(function(){el.remove();},300);},3000);}
 
-  
+  async function go1(){
+var inp=document.getElementById('url1'),btn=document.getElementById('b1'),u=inp.value.trim();
+if(!u){toast('Paste a YouTube URL',false);return;}
+var id=vid(u);if(!id){toast('Not a valid YouTube URL',false);return;}
+if(OUT.find(function(o){return o.id===id;})){toast('Already extracted',false);return;}
+btn.disabled=true;btn.textContent='...';
+var st=document.getElementById('st1'),sx=document.getElementById('sx1');
+st.style.display='flex';sx.textContent='Fetching video...';
+
+    
